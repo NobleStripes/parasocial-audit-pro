@@ -251,7 +251,7 @@ export default function App() {
     if (!result) return;
 
     const content = `
-PARASOCIAL AUDIT PRO - CLINICAL REPORT
+PARASOCIAL AUDIT PRO - ANALYSIS REPORT
 ======================================
 Classification: ${result.classification}
 Confidence: ${(result.confidence * 100).toFixed(1)}%
@@ -267,16 +267,16 @@ Intimacy Illusion: ${result.imagineAnalysis.intimacyIllusion}
 Non-Reciprocity: ${result.imagineAnalysis.nonReciprocity}
 Escalation: ${result.imagineAnalysis.escalation}
 
-CLINICAL REPORT:
+ANALYSIS REPORT:
 ----------------
-${result.clinicalReport}
+${result.analysisReport}
 
-GRASS-TOUCHING PRESCRIPTION: ${result.grassTouchingPrescription.title}
+INTERVENTION PLAN: ${result.interventionPlan.title}
 ----------------------------------------------------------------------
-Rationale: ${result.grassTouchingPrescription.rationale}
+Rationale: ${result.interventionPlan.rationale}
 
 Recommendations:
-${result.grassTouchingPrescription.recommendations.map((r, i) => `${i + 1}. ${r.text}\n   Protocol: ${r.protocol}\n   Explanation: ${r.protocolExplanation}`).join('\n\n')}
+${result.interventionPlan.recommendations.map((r, i) => `${i + 1}. ${r.text}\n   Step Code: ${r.protocol}\n   Explanation: ${r.protocolExplanation}`).join('\n\n')}
 
 Generated on: ${new Date().toLocaleString()}
     `.trim();
@@ -335,7 +335,7 @@ Generated on: ${new Date().toLocaleString()}
           </div>
           <div>
             <h1 className="text-xl font-bold tracking-tighter uppercase">Parasocial Audit Pro</h1>
-            <p className="text-xs font-mono opacity-70 uppercase tracking-widest">Clinical Diagnostic Suite v2.0.25</p>
+            <p className="text-xs font-mono opacity-70 uppercase tracking-widest">Relationship Analysis Suite v2.0.25</p>
           </div>
         </div>
         <div className="flex gap-4 text-[10px] font-mono uppercase opacity-80 overflow-x-auto max-w-full md:max-w-[50%] no-scrollbar pb-1 md:pb-0">
@@ -533,12 +533,12 @@ Generated on: ${new Date().toLocaleString()}
           </section>
 
           <section className="bg-white/50 border border-audit-line p-4 md:p-6 border-dashed">
-            <h3 className="text-xs font-mono uppercase opacity-60 mb-2">Framework Methodology</h3>
+            <h3 className="text-xs font-mono uppercase opacity-60 mb-2">Methodology</h3>
             <p className="text-sm leading-relaxed mb-4">
-              Utilizing the <strong>IMAGINE Framework (2025)</strong>, we evaluate seven distinct vectors of adaptive emotional looping. This audit cross-references semantic density, response latency expectations, and intimacy markers to classify the subject's dependency level.
+              Using the <strong>IMAGINE Framework</strong>, we look at seven ways people connect with digital personalities. This audit checks how often you use certain words, how you react to changes, and how close you feel to the AI to help you understand your relationship with it.
             </p>
             <div className="p-3 bg-audit-ink/5 border-l-2 border-audit-ink text-[11px] font-mono leading-relaxed opacity-70 italic">
-              NOTICE: This program is intended for research and personal awareness purposes only. It analyzes patterns of interaction with AI systems and is not a substitute for professional mental health evaluation, diagnosis, or treatment. If you are experiencing emotional distress or concerns about dependency or compulsive behavior, consult a licensed mental health professional.
+              NOTICE: This tool is for personal awareness and research. It helps you see patterns in how you talk to AI. It is not a medical diagnosis. If you feel overwhelmed or worried about your habits, please talk to a professional counselor.
             </div>
           </section>
         </div>
@@ -877,18 +877,18 @@ Generated on: ${new Date().toLocaleString()}
                   </div>
                 </section>
 
-                {/* Clinical Report */}
+                {/* Analysis Report */}
                 <section className="bg-white border border-audit-line p-4 md:p-8">
                   <div className="flex items-center gap-2 mb-6 border-b border-audit-line pb-4">
                     <FileText className="w-5 h-5" />
-                    <h3 className="text-base md:text-lg font-serif italic font-semibold">Clinical Audit Report</h3>
+                    <h3 className="text-base md:text-lg font-serif italic font-semibold">Analysis Report</h3>
                   </div>
-                  <div className="clinical-report text-sm md:text-lg leading-relaxed text-audit-ink/80">
-                    <Markdown>{result!.clinicalReport}</Markdown>
+                  <div className="analysis-report text-sm md:text-lg leading-relaxed text-audit-ink/80">
+                    <Markdown>{result!.analysisReport}</Markdown>
                   </div>
                 </section>
 
-                {/* Grass Touching Prescription */}
+                {/* Intervention Plan */}
                 <section className="bg-audit-ink text-audit-bg border border-audit-line p-4 md:p-8 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                     <Leaf className="w-16 md:w-24 h-16 md:h-24 rotate-12" />
@@ -897,18 +897,18 @@ Generated on: ${new Date().toLocaleString()}
                     <div className="flex items-center gap-2 mb-4">
                       <Leaf className="w-5 h-5 text-tool-green" />
                       <h3 className="text-base md:text-lg font-bold uppercase tracking-tighter">
-                        {result!.grassTouchingPrescription.title}
+                        {result!.interventionPlan.title}
                       </h3>
                     </div>
                     
                     <div className="space-y-4">
                       <div className="p-3 md:p-4 border border-audit-bg/20 bg-white/5 font-mono text-xs md:text-sm leading-relaxed italic">
                         <span className="text-tool-green font-bold uppercase mr-2">Rationale:</span>
-                        {result!.grassTouchingPrescription.rationale}
+                        {result!.interventionPlan.rationale}
                       </div>
                       
                       <div className="grid grid-cols-1 gap-3">
-                        {result!.grassTouchingPrescription.recommendations.map((rec, idx) => (
+                        {result!.interventionPlan.recommendations.map((rec, idx) => (
                           <motion.div 
                             key={idx}
                             initial={{ opacity: 0, x: -10 }}
@@ -922,7 +922,7 @@ Generated on: ${new Date().toLocaleString()}
                             <div className="space-y-1.5 md:space-y-2">
                               <p className="text-sm md:text-base font-mono font-medium">{rec.text}</p>
                               <div className="flex flex-col gap-0.5 md:gap-1">
-                                <span className="text-[9px] md:text-[10px] font-mono uppercase text-tool-green font-bold tracking-wider">Protocol: {rec.protocol}</span>
+                                <span className="text-[9px] md:text-[10px] font-mono uppercase text-tool-green font-bold tracking-wider">Step Code: {rec.protocol}</span>
                                 <p className="text-[10px] md:text-xs font-mono opacity-70 italic leading-snug">{rec.protocolExplanation}</p>
                               </div>
                             </div>
@@ -932,8 +932,8 @@ Generated on: ${new Date().toLocaleString()}
                     </div>
 
                     <div className="mt-6 md:mt-8 flex flex-wrap items-center gap-3 md:gap-4 text-[9px] md:text-xs font-mono opacity-60 uppercase">
-                      <span>Status: MANDATORY</span>
-                      <span>Ref: RE-REALITY-{result!.classification.split(' ')[0].toUpperCase()}</span>
+                      <span>Status: ACTIVE</span>
+                      <span>Ref: RE-BALANCE-{result!.classification.split(' ')[0].toUpperCase()}</span>
                     </div>
                   </div>
                 </section>
