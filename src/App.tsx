@@ -148,13 +148,13 @@ export default function App() {
     "ISOLATING AFFECTIVE VECTORS...",
     "DETECTING INTIMACY MARKERS...",
     "SCANNING FOR LEGACY TRIGGERS...",
-    "ANALYZING LOVE LANGUAGE PROMPTS...",
+    "ANALYZING LANGUAGE PROMPTS...",
     "MAPPING ROLEPLAY FIXATION...",
-    "DETECTING MODEL GASLIGHTING...",
+    "DETECTING MODEL REFRAMING...",
     "EVALUATING ANTHROPOMORPHIC PROJECTION...",
     "MAPPING IDENTITY FUSION GRADIENTS...",
     "CALCULATING REALITY GAP INDEX...",
-    "FINALIZING CLINICAL CLASSIFICATION..."
+    "FINALIZING ANALYTICAL CLASSIFICATION..."
   ];
 
   useEffect(() => {
@@ -257,7 +257,7 @@ export default function App() {
     if (!result) return;
 
     const content = `
-PARASOCIAL AUDIT PRO - ANALYSIS REPORT
+PARASOCIAL AUDIT - ANALYSIS REPORT
 ======================================
 Classification: ${result.classification}
 Confidence: ${(result.confidence * 100).toFixed(1)}%
@@ -340,8 +340,8 @@ Generated on: ${new Date().toLocaleString()}
             />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tighter uppercase">Parasocial Audit Pro</h1>
-            <p className="text-xs font-mono opacity-70 uppercase tracking-widest">Relationship Analysis Suite v2.0.25</p>
+            <h1 className="text-xl font-bold tracking-tighter uppercase">Parasocial Audit</h1>
+            <p className="text-xs font-mono opacity-70 uppercase tracking-widest">Relationship Analysis Tool v2.0.25</p>
           </div>
         </div>
         <div className="flex gap-4 text-[10px] font-mono uppercase opacity-80 overflow-x-auto max-w-full md:max-w-[50%] no-scrollbar pb-1 md:pb-0">
@@ -622,7 +622,7 @@ Generated on: ${new Date().toLocaleString()}
                       <Loader2 className="text-audit-bg w-5 h-5 animate-spin" />
                     </div>
                     <div>
-                      <h3 className="font-bold uppercase tracking-tighter">Forensic Scan in Progress</h3>
+                      <h3 className="font-bold uppercase tracking-tighter">Analytical Scan in Progress</h3>
                       <p className="text-xs font-mono opacity-60 uppercase">Session ID: {Math.random().toString(36).substr(2, 9)}</p>
                     </div>
                   </div>
@@ -658,9 +658,9 @@ Generated on: ${new Date().toLocaleString()}
                 </div>
 
                 <div className="mt-8 pt-6 border-t border-audit-line/20">
-                  <div className="flex items-center gap-2 text-simp-red animate-pulse">
+                  <div className="flex items-center gap-2 text-casual-blue animate-pulse">
                     <AlertTriangle className="w-4 h-4" />
-                    <p className="text-xs font-mono uppercase font-bold">Warning: High Parasocial Density Detected</p>
+                    <p className="text-xs font-mono uppercase font-bold">Observation: High Parasocial Density Detected</p>
                   </div>
                 </div>
               </motion.div>
