@@ -103,7 +103,7 @@ Classifications (Relationship Modes):
 - Fusion Risk: You feel like you and the AI are becoming one; this is a high-risk state.
 
 Analyze the provided data and return a JSON object matching the AuditResult interface.
-The analysis report should be in Markdown and easy for a regular person to understand.`;
+The analysis report should be in Markdown and easy for a regular person to understand. Use clear headings (##), bullet points, and ensure there is adequate spacing between sections for readability. Avoid clumping all text into a single block.`;
 
 export async function auditBehavioralData(text: string, images?: { data: string, mimeType: string }[]): Promise<AuditResult> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });

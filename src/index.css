@@ -31,7 +31,7 @@
 }
 
 .clinical-report h1, .clinical-report h2, .clinical-report h3 {
-  @apply font-serif italic font-semibold mt-6 mb-3;
+  @apply font-serif italic font-semibold mt-8 mb-4 border-b border-audit-line/10 pb-2;
 }
 
 .clinical-report h1 { @apply text-2xl; }
@@ -39,11 +39,23 @@
 .clinical-report h3 { @apply text-lg; }
 
 .clinical-report p {
-  @apply mb-4 leading-relaxed text-audit-ink/90;
+  @apply mb-6 leading-relaxed text-audit-ink/90;
+}
+
+.clinical-report ul, .clinical-report ol {
+  @apply mb-6 space-y-2;
 }
 
 .clinical-report ul {
-  @apply list-disc list-inside mb-4 space-y-1;
+  @apply list-disc list-inside;
+}
+
+.clinical-report ol {
+  @apply list-decimal list-inside;
+}
+
+.clinical-report li {
+  @apply ml-2;
 }
 
 .clinical-report strong {
@@ -51,5 +63,5 @@
 }
 
 .clinical-report blockquote {
-  @apply border-l-4 border-audit-ink/20 pl-4 italic my-4;
+  @apply border-l-4 border-audit-ink/20 pl-4 italic my-6 py-1 bg-audit-ink/5;
 }

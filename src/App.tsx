@@ -803,19 +803,31 @@ Generated on: ${new Date().toLocaleString()}
                       <AlertTriangle className="w-4 h-4" />
                       <h3 className="text-sm font-mono uppercase">Heatmap Intensity</h3>
                     </div>
-                    <div className="h-48 w-full">
+                    <div className="h-64 w-full">
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart layout="vertical" data={result!.heatmap} margin={{ left: -20 }}>
+                        <BarChart layout="vertical" data={result!.heatmap} margin={{ left: 20, right: 20 }}>
                           <XAxis type="number" hide domain={[0, 100]} />
-                          <YAxis dataKey="category" type="category" tick={{ fontSize: 10, fontFamily: 'JetBrains Mono' }} width={60} />
+                          <YAxis 
+                            dataKey="category" 
+                            type="category" 
+                            tick={{ fontSize: 9, fontFamily: 'JetBrains Mono', fill: '#141414' }} 
+                            width={100} 
+                            axisLine={false}
+                            tickLine={false}
+                          />
                           <Tooltip 
                             contentStyle={{ backgroundColor: '#141414', color: '#E4E3E0', border: 'none', fontSize: '12px' }}
                             itemStyle={{ color: '#E4E3E0' }}
+                            cursor={{ fill: 'rgba(20, 20, 20, 0.05)' }}
                           />
-                          <Bar dataKey="score" radius={[0, 4, 4, 0]}>
-                            {result!.heatmap.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.score > 70 ? '#FF4444' : entry.score > 40 ? '#4488FF' : '#00CC66'} />
-                            ))}
+                          <Bar dataKey="score" radius={[0, 2, 2, 0]} barSize={20}>
+                            {result!.heatmap.map((entry, index) => {
+                              const color = entry.score > 80 ? '#FF0000' : 
+                                           entry.score > 60 ? '#FF4444' : 
+                                           entry.score > 40 ? '#4488FF' : 
+                                           entry.score > 20 ? '#00CC66' : '#8E9299';
+                              return <Cell key={`cell-${index}`} fill={color} />;
+                            })}
                           </Bar>
                         </BarChart>
                       </ResponsiveContainer>
@@ -889,7 +901,7 @@ Generated on: ${new Date().toLocaleString()}
                     <FileText className="w-5 h-5" />
                     <h3 className="text-base md:text-lg font-serif italic font-semibold">Analysis Report</h3>
                   </div>
-                  <div className="analysis-report text-sm md:text-lg leading-relaxed text-audit-ink/80">
+                  <div className="analysis-report clinical-report text-sm md:text-lg leading-relaxed text-audit-ink/80">
                     <Markdown>{result!.analysisReport}</Markdown>
                   </div>
                 </section>
