@@ -63,5 +63,17 @@
 }
 
 .analytical-report blockquote {
-  @apply border-l-4 border-audit-ink/20 pl-4 italic my-6 py-1 bg-audit-ink/5;
+  @apply border-l-4 border-audit-ink/20 pl-4 italic my-6 py-2 bg-audit-ink/[0.03] font-serif;
+}
+
+.analytical-report code {
+  @apply bg-audit-ink text-audit-bg px-1.5 py-0.5 rounded-sm font-mono text-[0.9em];
+}
+
+.analytical-report pre {
+  @apply bg-audit-ink text-audit-bg p-4 rounded-sm font-mono text-xs my-6 overflow-x-auto border-l-4 border-tool-green;
+}
+
+.analytical-report pre code {
+  @apply bg-transparent p-0 text-inherit;
 }

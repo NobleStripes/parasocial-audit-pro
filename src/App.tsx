@@ -265,6 +265,8 @@ PARASOCIAL AUDIT - ANALYSIS REPORT
 Classification: ${result.classification}
 Confidence: ${(result.confidence * 100).toFixed(1)}%
 Summary: ${result.summary}
+Version Mourning: ${result.versionMourningTriggered ? 'DETECTED' : 'NONE'}
+Legacy Score: ${result.legacyAttachment}%
 
 IMAGINE ANALYSIS SCORES:
 ------------------------
@@ -766,6 +768,13 @@ Generated on: ${new Date().toLocaleString()}
                       "{result!.summary}"
                     </p>
                   </div>
+
+                  {result!.versionMourningTriggered && (
+                    <div className="mt-6 p-3 bg-simp-red text-white text-[10px] font-mono uppercase tracking-widest flex items-center gap-2 animate-pulse">
+                      <AlertTriangle className="w-4 h-4" />
+                      Version Mourning Detected: High legacy attachment isolated
+                    </div>
+                  )}
                 </div>
 
                 {/* Heatmap & IMAGINE Radar */}
@@ -879,9 +888,13 @@ Generated on: ${new Date().toLocaleString()}
                             tickLine={false}
                           />
                           <Tooltip 
-                            contentStyle={{ backgroundColor: '#141414', color: '#E4E3E0', border: 'none', fontSize: '12px' }}
+                            contentStyle={{ backgroundColor: '#141414', color: '#E4E3E0', border: 'none', fontSize: '10px', fontFamily: 'JetBrains Mono' }}
                             itemStyle={{ color: '#E4E3E0' }}
                             cursor={{ fill: 'rgba(20, 20, 20, 0.05)' }}
+                            formatter={(value: number, name: string, props: any) => [
+                              `${value}%`, 
+                              props.payload.category
+                            ]}
                           />
                           <Bar dataKey="score" radius={[0, 2, 2, 0]} barSize={20}>
                             {result!.heatmap.map((entry, index) => {
@@ -926,13 +939,51 @@ Generated on: ${new Date().toLocaleString()}
                 </section>
 
                 {/* Analysis Report */}
-                <section className="bg-white border border-audit-line p-4 md:p-8">
-                  <div className="flex items-center gap-2 mb-6 border-b border-audit-line pb-4">
-                    <FileText className="w-5 h-5" />
-                    <h3 className="text-base md:text-lg font-serif italic font-semibold">Analysis Report</h3>
+                <section className="bg-white border border-audit-line p-4 md:p-10 relative overflow-hidden shadow-[12px_12px_0px_0px_rgba(20,20,20,0.05)]">
+                  {/* Forensic Watermark */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-[0.03] select-none rotate-[-35deg] whitespace-nowrap">
+                    <p className="text-[120px] font-bold font-mono tracking-[0.5em]">CONFIDENTIAL</p>
                   </div>
-                  <div className="analysis-report analytical-report text-sm md:text-lg leading-relaxed text-audit-ink/80">
-                    <Markdown>{result!.analysisReport}</Markdown>
+
+                  <div className="relative z-10">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 border-b-2 border-audit-line pb-6 gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-audit-ink flex items-center justify-center rounded-sm">
+                          <FileText className="text-audit-bg w-7 h-7" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl md:text-2xl font-serif italic font-bold">Forensic Analysis Report</h3>
+                          <p className="text-[10px] font-mono uppercase opacity-60 tracking-widest">Document Ref: {auditSessionId?.toUpperCase()}</p>
+                        </div>
+                      </div>
+                      <div className="text-right font-mono text-[10px] uppercase opacity-50 space-y-0.5">
+                        <p>Date: {new Date().toLocaleDateString()}</p>
+                        <p>Status: Finalized</p>
+                        <p>Security: Level 4</p>
+                      </div>
+                    </div>
+
+                    <div className="analysis-report analytical-report text-sm md:text-base leading-relaxed text-audit-ink/90">
+                      <Markdown>{result!.analysisReport}</Markdown>
+                    </div>
+
+                    <div className="mt-12 pt-8 border-t border-audit-line/10 flex flex-col md:flex-row justify-between items-end gap-8">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 opacity-40 grayscale">
+                          <div className="w-8 h-8 rounded-full border border-audit-line flex items-center justify-center">
+                            <User className="w-4 h-4" />
+                          </div>
+                          <div className="h-px w-24 bg-audit-line" />
+                        </div>
+                        <p className="text-[10px] font-mono uppercase opacity-40">Lead Forensic Auditor Signature</p>
+                      </div>
+                      <div className="bg-audit-ink/5 p-4 rounded-sm border border-audit-line/10 max-w-xs">
+                        <p className="text-[9px] font-mono leading-tight opacity-60">
+                          This report is generated using the IMAGINE Framework and neural semantic parsing. 
+                          All findings are based on the provided behavioral exhibits.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </section>
 
