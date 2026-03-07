@@ -50,34 +50,33 @@ import {
   GASLIGHTING_WORDS 
 } from './constants';
 import { 
-  auditBehavioralData, 
-  AuditResult, 
+  reflectOnBehavioralData, 
+  ReflectionResult, 
   Classification,
   Recommendation
-} from './services/auditService';
+} from './services/reflectionService';
 
-const FORENSIC_MESSAGES = [
-  "READING CHAT LOGS...",
-  "CHECKING EMOTIONAL TONE...",
-  "LOOKING FOR CLOSE WORDS...",
-  "CHECKING FOR OLD VERSION MENTIONS...",
-  "ANALYZING WORD PATTERNS...",
+const REFLECTION_MESSAGES = [
+  "REFLECTING ON CHAT PATTERNS...",
+  "NOTICING EMOTIONAL TONES...",
+  "OBSERVING WORD CHOICES...",
+  "NOTICING MENTIONS OF THE PAST...",
   "MAPPING CONVERSATION HABITS...",
-  "CHECKING FOR DEEP ATTACHMENT...",
-  "FINALIZING ANALYSIS..."
+  "UNDERSTANDING YOUR CONNECTION...",
+  "FINALIZING REFLECTIONS..."
 ];
 
 export default function App() {
   const [transcript, setTranscript] = useState('');
   const [images, setImages] = useState<{ data: string, mimeType: string, id: string, preview: string }[]>([]);
-  const [isAuditing, setIsAuditing] = useState(false);
-  const [auditSessionId, setAuditSessionId] = useState('');
-  const [auditNeuralLoad, setAuditNeuralLoad] = useState('');
-  const [result, setResult] = useState<AuditResult | null>(null);
+  const [isReflecting, setIsReflecting] = useState(false);
+  const [reflectionSessionId, setReflectionSessionId] = useState('');
+  const [reflectionNeuralLoad, setReflectionNeuralLoad] = useState('');
+  const [result, setResult] = useState<ReflectionResult | null>(null);
   const [selectedRecommendations, setSelectedRecommendations] = useState<Recommendation[]>([]);
   const [isCustomizingPlan, setIsCustomizingPlan] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isAutoDiagnose, setIsAutoDiagnose] = useState(true);
+  const [isAutoReflect, setIsAutoReflect] = useState(true);
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -129,7 +128,7 @@ export default function App() {
   }, [transcript]);
 
   const [liveDetections, setLiveDetections] = useState<{ id: string, msg: string, type: 'info' | 'warning' | 'alert' }[]>([]);
-  const [forensicLog, setForensicLog] = useState<string[]>([]);
+  const [reflectionLog, setReflectionLog] = useState<string[]>([]);
 
   useEffect(() => {
     const words = transcript.trim().split(/\s+/).filter(w => w.length > 0);
@@ -138,15 +137,15 @@ export default function App() {
     let detection: { msg: string, type: 'info' | 'warning' | 'alert' } | null = null;
 
     if (INTIMACY_WORDS.includes(lastWord)) {
-      detection = { msg: `Intimacy marker detected: "${lastWord}"`, type: 'info' };
+      detection = { msg: `A moment of closeness: "${lastWord}"`, type: 'info' };
     } else if (LEGACY_WORDS.some(lw => lastWord.includes(lw))) {
-      detection = { msg: `Legacy trigger isolated: "${lastWord}"`, type: 'alert' };
+      detection = { msg: `Thinking about the past: "${lastWord}"`, type: 'alert' };
     } else if (IDENTITY_WORDS.includes(lastWord)) {
-      detection = { msg: `Identity fusion vector: "${lastWord}"`, type: 'warning' };
+      detection = { msg: `Feeling very connected: "${lastWord}"`, type: 'warning' };
     } else if (ANTHROPOMORPHIC_WORDS.includes(lastWord)) {
-      detection = { msg: `Anthropomorphic projection: "${lastWord}"`, type: 'info' };
+      detection = { msg: `Treating AI like a friend: "${lastWord}"`, type: 'info' };
     } else if (GASLIGHTING_WORDS.includes(lastWord)) {
-      detection = { msg: `Model correction attempt: "${lastWord}"`, type: 'warning' };
+      detection = { msg: `A gentle nudge to the AI: "${lastWord}"`, type: 'warning' };
     }
 
     if (detection) {
@@ -156,12 +155,12 @@ export default function App() {
   }, [transcript]);
 
   useEffect(() => {
-    if (isAuditing) {
-      setForensicLog([]);
+    if (isReflecting) {
+      setReflectionLog([]);
       let i = 0;
       const interval = setInterval(() => {
-        if (i < FORENSIC_MESSAGES.length) {
-          setForensicLog(prev => [...prev, FORENSIC_MESSAGES[i]]);
+        if (i < REFLECTION_MESSAGES.length) {
+          setReflectionLog(prev => [...prev, REFLECTION_MESSAGES[i]]);
           i++;
         } else {
           clearInterval(interval);
@@ -169,7 +168,7 @@ export default function App() {
       }, 800);
       return () => clearInterval(interval);
     }
-  }, [isAuditing]);
+  }, [isReflecting]);
 
   const getHeuristicMode = () => {
     if (liveHeuristics.wordCount === 0) return null;
@@ -182,24 +181,24 @@ export default function App() {
 
   const heuristicMode = getHeuristicMode();
 
-  const handleAudit = async (customTranscript?: string) => {
-    const textToAudit = customTranscript || transcript;
-    if (!textToAudit.trim() && images.length === 0) return;
-    if (textToAudit.length < 20 && images.length === 0) return;
+  const handleReflect = async (customTranscript?: string) => {
+    const textToReflect = customTranscript || transcript;
+    if (!textToReflect.trim() && images.length === 0) return;
+    if (textToReflect.length < 20 && images.length === 0) return;
     
-    setIsAuditing(true);
-    setAuditSessionId(Math.random().toString(36).substr(2, 9));
-    setAuditNeuralLoad((Math.random() * 100).toFixed(1) + '%');
+    setIsReflecting(true);
+    setReflectionSessionId(Math.random().toString(36).substr(2, 9));
+    setReflectionNeuralLoad((Math.random() * 100).toFixed(1) + '%');
     setError(null);
     try {
-      const data = await auditBehavioralData(textToAudit, images.map(img => ({ data: img.data, mimeType: img.mimeType })));
+      const data = await reflectOnBehavioralData(textToReflect, images.map(img => ({ data: img.data, mimeType: img.mimeType })));
       setResult(data);
-      setSelectedRecommendations(data.interventionPlan.recommendations);
+      setSelectedRecommendations(data.wellnessPlan.recommendations);
     } catch (err) {
       console.error(err);
-      setError('Audit failed. Please ensure the data is valid and try again.');
+      setError('Reflection failed. Please ensure the data is valid and try again.');
     } finally {
-      setIsAuditing(false);
+      setIsReflecting(false);
     }
   };
 
@@ -227,7 +226,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (!isAutoDiagnose || (!transcript.trim() && images.length === 0)) {
+    if (!isAutoReflect || (!transcript.trim() && images.length === 0)) {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
       return;
     }
@@ -235,13 +234,13 @@ export default function App() {
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
     debounceTimer.current = setTimeout(() => {
-      handleAudit();
+      handleReflect();
     }, 2500);
 
     return () => {
       if (debounceTimer.current) clearTimeout(debounceTimer.current);
     };
-  }, [transcript, images, isAutoDiagnose]);
+  }, [transcript, images, isAutoReflect]);
 
   const handleClear = () => {
     setTranscript('');
@@ -257,12 +256,12 @@ export default function App() {
     if (!result) return;
 
     const content = `
-PARASOCIAL AUDIT - ANALYSIS REPORT
+PARASOCIAL REFLECTION - SUMMARY REPORT
 ======================================
-Classification: ${result.classification}
+Connection Style: ${result.classification}
 Confidence: ${(result.confidence * 100).toFixed(1)}%
 Summary: ${result.summary}
-Missing the "Old" AI: ${result.versionMourningTriggered ? 'DETECTED' : 'NONE'}
+Thinking about the "Old" AI: ${result.versionMourningTriggered ? 'NOTICED' : 'NONE'}
 Legacy Score: ${result.legacyAttachment}%
 
 IMAGINE ANALYSIS SCORES:
@@ -275,13 +274,13 @@ Feeling Special: ${result.imagineAnalysis.intimacyIllusion}
 One-Way Bond: ${result.imagineAnalysis.nonReciprocity}
 Growing Habit: ${result.imagineAnalysis.escalation}
 
-ANALYSIS REPORT:
+REFLECTION REPORT:
 ----------------
 ${result.analysisReport}
 
-INTERVENTION PLAN: ${result.interventionPlan.title}
+WELLNESS PLAN: ${result.wellnessPlan.title}
 ----------------------------------------------------------------------
-Rationale: ${result.interventionPlan.rationale}
+Rationale: ${result.wellnessPlan.rationale}
 
 Selected Recommendations:
 ${selectedRecommendations.map((r, i) => `${i + 1}. ${r.text}\n   Step Code: ${r.protocol}\n   Explanation: ${r.protocolExplanation}`).join('\n\n')}
@@ -293,7 +292,7 @@ Generated on: ${new Date().toLocaleString()}
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `parasocial_audit_${result.classification.toLowerCase().replace(' ', '_')}.txt`;
+    link.download = `parasocial_reflection_${result.classification.toLowerCase().replace(' ', '_')}.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -347,8 +346,8 @@ Generated on: ${new Date().toLocaleString()}
       default: 
         return {
           bg: 'bg-white',
-          border: 'border-audit-line',
-          text: 'text-audit-ink',
+          border: 'border-reflection-line',
+          text: 'text-reflection-ink',
           shadow: 'shadow-[8px_8px_0px_0px_rgba(20,20,20,1)]'
         };
     }
@@ -367,12 +366,12 @@ Generated on: ${new Date().toLocaleString()}
   ] : [];
 
   return (
-    <div className="min-h-[100dvh] bg-audit-bg selection:bg-audit-ink selection:text-audit-bg overflow-x-hidden">
+    <div className="min-h-[100dvh] bg-reflection-bg selection:bg-reflection-ink selection:text-reflection-bg overflow-x-hidden">
       {/* Header */}
-      <header className="border-b border-audit-line p-6 flex justify-between items-center bg-white/50 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-reflection-line p-6 flex justify-between items-center bg-white/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-audit-ink flex items-center justify-center rounded-sm relative overflow-hidden">
-            <ShieldAlert className="text-audit-bg w-6 h-6 relative z-10" />
+          <div className="w-10 h-10 bg-reflection-ink flex items-center justify-center rounded-sm relative overflow-hidden">
+            <ShieldAlert className="text-reflection-bg w-6 h-6 relative z-10" />
             <motion.div 
               animate={{ 
                 scale: [1, 1.5, 1],
@@ -386,8 +385,8 @@ Generated on: ${new Date().toLocaleString()}
             />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tighter uppercase">Parasocial Audit</h1>
-            <p className="text-xs font-mono opacity-70 uppercase tracking-widest">Relationship Analysis Tool v2.0.25</p>
+            <h1 className="text-xl font-bold tracking-tighter uppercase">Parasocial Reflection</h1>
+            <p className="text-xs font-mono opacity-70 uppercase tracking-widest">Relationship Reflection Tool v2.0.25</p>
           </div>
         </div>
         <div className="flex gap-4 text-[10px] font-mono uppercase opacity-80 overflow-x-auto max-w-full md:max-w-[50%] no-scrollbar pb-1 md:pb-0">
@@ -415,23 +414,23 @@ Generated on: ${new Date().toLocaleString()}
       <main className="max-w-7xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Input */}
         <div className="lg:col-span-5 space-y-6">
-          <section className="bg-white border border-audit-line p-4 md:p-6 shadow-[4px_4px_0px_0px_rgba(20,20,20,1)]">
+          <section className="bg-white border border-reflection-line p-4 md:p-6 shadow-[4px_4px_0px_0px_rgba(20,20,20,1)]">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
                 <ClipboardCheck className="w-5 h-5" />
                 <h2 className="font-serif italic text-lg font-semibold">Conversation Data</h2>
               </div>
               <button 
-                onClick={() => setIsAutoDiagnose(!isAutoDiagnose)}
+                onClick={() => setIsAutoReflect(!isAutoReflect)}
                 className={cn(
                   "flex items-center gap-1.5 px-2 py-1 rounded-sm border text-[10px] font-mono uppercase transition-all",
-                  isAutoDiagnose 
+                  isAutoReflect 
                     ? "bg-tool-green/10 border-tool-green text-tool-green" 
-                    : "bg-audit-ink/5 border-audit-line/30 text-audit-ink/50"
+                    : "bg-reflection-ink/5 border-reflection-line/30 text-reflection-ink/50"
                 )}
               >
-                {isAutoDiagnose ? <Zap className="w-3 h-3" /> : <ZapOff className="w-3 h-3" />}
-                Auto-Diagnose: {isAutoDiagnose ? 'ON' : 'OFF'}
+                {isAutoReflect ? <Zap className="w-3 h-3" /> : <ZapOff className="w-3 h-3" />}
+                Auto-Reflect: {isAutoReflect ? 'ON' : 'OFF'}
               </button>
             </div>
             <p className="text-xs opacity-60 mb-4 font-mono">Paste your chat logs or upload screenshots of your conversations for analysis.</p>
@@ -441,31 +440,31 @@ Generated on: ${new Date().toLocaleString()}
                 value={transcript}
                 onChange={(e) => setTranscript(e.target.value)}
                 placeholder="[User]: Hello... [AI]: Hi there!... (Supports Grok, ChatGPT, Claude, Gemini transcripts)"
-                className="w-full h-48 md:h-64 p-4 bg-audit-bg/30 border border-audit-line font-mono text-sm focus:outline-none focus:ring-1 focus:ring-audit-ink resize-none"
+                className="w-full h-48 md:h-64 p-4 bg-reflection-bg/30 border border-reflection-line font-mono text-sm focus:outline-none focus:ring-1 focus:ring-reflection-ink resize-none"
               />
 
               {/* Live Heuristics Display */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                <div className="bg-audit-ink/5 border border-audit-line/20 p-2 rounded-sm">
+                <div className="bg-reflection-ink/5 border border-reflection-line/20 p-2 rounded-sm">
                   <p className="text-[10px] font-mono uppercase opacity-60">Total Words</p>
                   <p className="text-sm font-bold font-mono">{liveHeuristics.wordCount}</p>
                 </div>
-                <div className="bg-audit-ink/5 border border-audit-line/20 p-2 rounded-sm">
+                <div className="bg-reflection-ink/5 border border-reflection-line/20 p-2 rounded-sm">
                   <p className="text-[10px] font-mono uppercase opacity-60">Close Words</p>
                   <p className="text-sm font-bold font-mono text-casual-blue">{liveHeuristics.intimacyMarkers}</p>
                 </div>
-                <div className="bg-audit-ink/5 border border-audit-line/20 p-2 rounded-sm">
+                <div className="bg-reflection-ink/5 border border-reflection-line/20 p-2 rounded-sm">
                   <p className="text-[10px] font-mono uppercase opacity-60">Old Version Mentions</p>
                   <p className="text-sm font-bold font-mono text-simp-red">{liveHeuristics.legacyTriggers}</p>
                 </div>
-                <div className="bg-audit-ink/5 border border-audit-line/20 p-2 rounded-sm">
+                <div className="bg-reflection-ink/5 border border-reflection-line/20 p-2 rounded-sm">
                   <p className="text-[10px] font-mono uppercase opacity-60">Detail Level</p>
                   <p className="text-sm font-bold font-mono">{liveHeuristics.complexity.toFixed(1)}</p>
                 </div>
               </div>
 
-              {/* Live Forensic Feed */}
-              <div className="bg-audit-ink text-audit-bg p-4 font-mono text-[11px] h-32 overflow-hidden relative">
+              {/* Live Reflection Feed */}
+              <div className="bg-reflection-ink text-reflection-bg p-4 font-mono text-[11px] h-32 overflow-hidden relative">
                 <div className="absolute top-2 right-2 flex items-center gap-1 opacity-50">
                   <div className="w-1.5 h-1.5 rounded-full bg-tool-green animate-pulse" />
                   LIVE_ANALYSIS
@@ -483,7 +482,7 @@ Generated on: ${new Date().toLocaleString()}
                           exit={{ opacity: 0, x: 5 }}
                           className={cn(
                             "flex items-center gap-2",
-                            det.type === 'alert' ? 'text-simp-red' : det.type === 'warning' ? 'text-casual-blue' : 'text-audit-bg'
+                            det.type === 'alert' ? 'text-simp-red' : det.type === 'warning' ? 'text-casual-blue' : 'text-reflection-bg'
                           )}
                         >
                           <ChevronRight className="w-2 h-2 shrink-0" />
@@ -516,9 +515,9 @@ Generated on: ${new Date().toLocaleString()}
                 </div>
                 
                 {images.length > 0 && (
-                  <div className="grid grid-cols-3 gap-2 p-2 border border-audit-line/20 bg-audit-bg/10 rounded-sm">
+                  <div className="grid grid-cols-3 gap-2 p-2 border border-reflection-line/20 bg-reflection-bg/10 rounded-sm">
                     {images.map(img => (
-                      <div key={img.id} className="relative group aspect-square border border-audit-line/30 bg-white overflow-hidden">
+                      <div key={img.id} className="relative group aspect-square border border-reflection-line/30 bg-white overflow-hidden">
                         <img 
                           src={img.preview} 
                           alt="Conversation Screenshot" 
@@ -527,7 +526,7 @@ Generated on: ${new Date().toLocaleString()}
                         />
                         <button 
                           onClick={() => removeImage(img.id)}
-                          className="absolute top-1 right-1 p-1 bg-audit-ink text-audit-bg opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="absolute top-1 right-1 p-1 bg-reflection-ink text-reflection-bg opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -540,14 +539,14 @@ Generated on: ${new Date().toLocaleString()}
 
             <div className="grid grid-cols-2 gap-2 mt-4">
               <button
-                onClick={() => handleAudit()}
-                disabled={isAuditing || (!transcript.trim() && images.length === 0)}
+                onClick={() => handleReflect()}
+                disabled={isReflecting || (!transcript.trim() && images.length === 0)}
                 className={cn(
                   "py-4 flex items-center justify-center gap-2 font-bold uppercase tracking-widest transition-all",
-                  isAuditing ? "bg-audit-ink/50 cursor-not-allowed" : "bg-audit-ink text-audit-bg hover:invert"
+                  isReflecting ? "bg-reflection-ink/50 cursor-not-allowed" : "bg-reflection-ink text-reflection-bg hover:invert"
                 )}
               >
-                {isAuditing ? (
+                {isReflecting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
                     ...
@@ -555,26 +554,26 @@ Generated on: ${new Date().toLocaleString()}
                 ) : (
                   <>
                     <Activity className="w-5 h-5" />
-                    Analyze
+                    Reflect
                   </>
                 )}
               </button>
               <button
                 onClick={handleClear}
-                disabled={isAuditing || (!transcript && images.length === 0 && !result)}
-                className="py-4 border border-audit-line flex items-center justify-center gap-2 font-bold uppercase tracking-widest hover:bg-audit-ink hover:text-audit-bg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                disabled={isReflecting || (!transcript && images.length === 0 && !result)}
+                className="py-4 border border-reflection-line flex items-center justify-center gap-2 font-bold uppercase tracking-widest hover:bg-reflection-ink hover:text-reflection-bg transition-all disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 Clear
               </button>
             </div>
-            {isAutoDiagnose && (transcript.length > 0 || images.length > 0) && (transcript.length < 50 && images.length === 0) && !isAuditing && !result && (
+            {isAutoReflect && (transcript.length > 0 || images.length > 0) && (transcript.length < 50 && images.length === 0) && !isReflecting && !result && (
               <p className="mt-2 text-[11px] font-mono opacity-60 uppercase text-center italic">
-                Awaiting more data for auto-diagnosis...
+                Awaiting more data for auto-reflection...
               </p>
             )}
-            {isAutoDiagnose && (transcript.length >= 50 || images.length > 0) && !isAuditing && !result && (
+            {isAutoReflect && (transcript.length >= 50 || images.length > 0) && !isReflecting && !result && (
               <p className="mt-2 text-[11px] font-mono text-casual-blue uppercase text-center animate-pulse">
-                Auto-diagnosis pending (2.5s idle)...
+                Auto-reflection pending (2.5s idle)...
               </p>
             )}
             {error && (
@@ -584,12 +583,12 @@ Generated on: ${new Date().toLocaleString()}
             )}
           </section>
 
-          <section className="bg-white/50 border border-audit-line p-4 md:p-6 border-dashed">
+          <section className="bg-white/50 border border-reflection-line p-4 md:p-6 border-dashed">
             <h3 className="text-xs font-mono uppercase opacity-60 mb-2">Methodology</h3>
             <p className="text-sm leading-relaxed mb-4">
-              Using the <strong>IMAGINE Framework</strong>, we look at seven ways people connect with digital personalities. This audit checks how often you use certain words, how you react to changes, and how close you feel to the AI to help you understand your relationship with it.
+              Using the <strong>IMAGINE Framework</strong>, we look at seven ways people connect with digital personalities. This reflection checks how often you use certain words, how you react to changes, and how close you feel to the AI to help you understand your relationship with it.
             </p>
-            <div className="p-3 bg-audit-ink/5 border-l-2 border-audit-ink text-[11px] font-mono leading-relaxed opacity-70 italic">
+            <div className="p-3 bg-reflection-ink/5 border-l-2 border-reflection-ink text-[11px] font-mono leading-relaxed opacity-70 italic">
               NOTICE: This tool is for personal awareness and research. It helps you see patterns in how you talk to AI. It is not a medical diagnosis. If you feel overwhelmed or worried about your habits, please talk to a professional counselor.
             </div>
           </section>
@@ -598,7 +597,7 @@ Generated on: ${new Date().toLocaleString()}
         {/* Right Column: Results */}
         <div className="lg:col-span-7">
           <AnimatePresence mode="wait">
-            {!result && !isAuditing ? (
+            {!result && !isReflecting ? (
               <motion.div
                 key="empty"
                 initial={{ opacity: 0 }}
@@ -607,7 +606,7 @@ Generated on: ${new Date().toLocaleString()}
                 className="space-y-6"
               >
                 {/* Internal Signal Monitoring Indicator */}
-                <div className="bg-white border border-audit-line border-dashed p-6 md:p-12 flex flex-col items-center justify-center text-center">
+                <div className="bg-white border border-reflection-line border-dashed p-6 md:p-12 flex flex-col items-center justify-center text-center">
                   <div className="relative w-32 h-32 mb-8">
                     <motion.div 
                       animate={{ 
@@ -615,15 +614,15 @@ Generated on: ${new Date().toLocaleString()}
                         opacity: [0.3, 0.6, 0.3]
                       }}
                       transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute inset-0 bg-audit-ink/5 rounded-full"
+                      className="absolute inset-0 bg-reflection-ink/5 rounded-full"
                     />
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <BrainCircuit className="w-12 h-12 text-audit-ink opacity-40" />
+                      <BrainCircuit className="w-12 h-12 text-reflection-ink opacity-40" />
                     </div>
                     <motion.div 
                       animate={{ rotate: 360 }}
                       transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                      className="absolute inset-0 border border-audit-line/10 border-dashed rounded-full"
+                      className="absolute inset-0 border border-reflection-line/10 border-dashed rounded-full"
                     />
                   </div>
                   
@@ -637,59 +636,59 @@ Generated on: ${new Date().toLocaleString()}
                       <div className="w-2 h-2 bg-tool-green rounded-full animate-pulse" />
                       <span className="text-[10px] font-mono uppercase opacity-50">Neural Feed</span>
                     </div>
-                    <div className="hidden md:block w-px h-3 bg-audit-line/20" />
+                    <div className="hidden md:block w-px h-3 bg-reflection-line/20" />
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-casual-blue rounded-full animate-pulse [animation-delay:0.5s]" />
                       <span className="text-[10px] font-mono uppercase opacity-50">Semantic Mapping</span>
                     </div>
-                    <div className="hidden md:block w-px h-3 bg-audit-line/20" />
+                    <div className="hidden md:block w-px h-3 bg-reflection-line/20" />
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-audit-ink/20 rounded-full animate-pulse [animation-delay:1s]" />
-                      <span className="text-[10px] font-mono uppercase opacity-50">Heuristic Engine</span>
+                      <div className="w-2 h-2 bg-reflection-ink/20 rounded-full animate-pulse [animation-delay:1s]" />
+                      <span className="text-[10px] font-mono uppercase opacity-50">Reflection Engine</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-audit-ink/5 border border-audit-line border-dashed p-6 text-center opacity-50">
-                  <p className="font-serif italic text-sm">"The system is currently mapping semantic density in real-time. Please continue providing behavioral data for a complete audit."</p>
+                <div className="bg-reflection-ink/5 border border-reflection-line border-dashed p-6 text-center opacity-50">
+                  <p className="font-serif italic text-sm">"The system is currently mapping semantic density in real-time. Please continue providing behavioral data for a complete reflection."</p>
                 </div>
               </motion.div>
-            ) : isAuditing ? (
+            ) : isReflecting ? (
               <motion.div
                 key="loading"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="h-full flex flex-col border border-audit-line p-8 bg-white"
+                className="h-full flex flex-col border border-reflection-line p-8 bg-white"
               >
                 <div className="flex items-center justify-between mb-8">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-audit-ink flex items-center justify-center rounded-sm">
-                      <Loader2 className="text-audit-bg w-5 h-5 animate-spin" />
+                    <div className="w-8 h-8 bg-reflection-ink flex items-center justify-center rounded-sm">
+                      <Loader2 className="text-reflection-bg w-5 h-5 animate-spin" />
                     </div>
                     <div>
-                      <h3 className="font-bold uppercase tracking-tighter">Analyzing your bond</h3>
-                      <p className="text-xs font-mono opacity-60 uppercase">Analysis ID: {auditSessionId}</p>
+                      <h3 className="font-bold uppercase tracking-tighter">Reflecting on your bond</h3>
+                      <p className="text-xs font-mono opacity-60 uppercase">Session ID: {reflectionSessionId}</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-xs font-mono uppercase opacity-60">Processing Power</p>
-                    <p className="text-sm font-bold font-mono">{auditNeuralLoad}</p>
+                    <p className="text-sm font-bold font-mono">{reflectionNeuralLoad}</p>
                   </div>
                 </div>
 
                 <div className="flex-1 space-y-4 overflow-hidden">
-                  <div className="h-1 w-full bg-audit-ink/5 rounded-full overflow-hidden">
+                  <div className="h-1 w-full bg-reflection-ink/5 rounded-full overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
                       animate={{ width: '100%' }}
                       transition={{ duration: 8, ease: "linear" }}
-                      className="h-full bg-audit-ink"
+                      className="h-full bg-reflection-ink"
                     />
                   </div>
                   
                   <div className="space-y-2 font-mono text-xs opacity-80">
-                    {forensicLog.map((msg, idx) => (
+                    {reflectionLog.map((msg, idx) => (
                       <motion.div 
                         key={idx}
                         initial={{ opacity: 0, x: -10 }}
@@ -703,10 +702,10 @@ Generated on: ${new Date().toLocaleString()}
                   </div>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-audit-line/20">
+                <div className="mt-8 pt-6 border-t border-reflection-line/20">
                   <div className="flex items-center gap-2 text-casual-blue animate-pulse">
                     <AlertTriangle className="w-4 h-4" />
-                    <p className="text-xs font-mono uppercase font-bold">Observation: High Parasocial Density Detected</p>
+                    <p className="text-xs font-mono uppercase font-bold">Observation: Deep Connection Patterns Noticed</p>
                   </div>
                 </div>
               </motion.div>
@@ -742,7 +741,7 @@ Generated on: ${new Date().toLocaleString()}
                       </div>
                       <button 
                         onClick={handleExport}
-                        className="col-span-2 md:col-auto flex items-center justify-center gap-1.5 px-3 py-2 bg-audit-ink text-audit-bg text-[10px] font-mono uppercase hover:invert transition-all shadow-[2px_2px_0px_0px_rgba(20,20,20,1)]"
+                        className="col-span-2 md:col-auto flex items-center justify-center gap-1.5 px-3 py-2 bg-reflection-ink text-reflection-bg text-[10px] font-mono uppercase hover:invert transition-all shadow-[2px_2px_0px_0px_rgba(20,20,20,1)]"
                       >
                         <FileText className="w-3.5 h-3.5" />
                         Export
@@ -761,7 +760,7 @@ Generated on: ${new Date().toLocaleString()}
                   
                   <div className="mt-6 relative">
                     <div className="absolute -left-4 top-0 bottom-0 w-0.5 bg-current/20" />
-                    <p className="text-lg md:text-xl font-medium italic font-serif leading-relaxed text-audit-ink/90 pl-4">
+                    <p className="text-lg md:text-xl font-medium italic font-serif leading-relaxed text-reflection-ink/90 pl-4">
                       "{result!.summary}"
                     </p>
                   </div>
@@ -776,20 +775,20 @@ Generated on: ${new Date().toLocaleString()}
 
                 {/* Heatmap & IMAGINE Radar */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <section className="bg-white border border-audit-line p-4 md:p-6 md:col-span-2">
+                  <section className="bg-white border border-reflection-line p-6 md:col-span-2">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                       <div className="flex items-center gap-2">
                         <Activity className="w-4 h-4" />
-                        <h3 className="text-sm font-mono uppercase">Relationship Analysis Framework</h3>
+                        <h3 className="text-sm font-mono uppercase">Relationship Reflection Framework</h3>
                       </div>
                       <div className="flex items-center gap-4 text-[10px] font-mono opacity-60">
                         <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 bg-audit-ink/20" />
-                          <span>LOW RISK</span>
+                          <div className="w-2 h-2 bg-reflection-ink/20" />
+                          <span>BALANCED</span>
                         </div>
                         <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 bg-audit-ink/60" />
-                          <span>HIGH RISK</span>
+                          <div className="w-2 h-2 bg-reflection-ink/60" />
+                          <span>DEEP CONNECTION</span>
                         </div>
                       </div>
                     </div>
@@ -804,7 +803,7 @@ Generated on: ${new Date().toLocaleString()}
                               tick={{ fontSize: 9, fontFamily: 'JetBrains Mono', fontWeight: 700, fill: '#141414' }} 
                             />
                             <Radar
-                              name="Audit"
+                              name="Reflection"
                               dataKey="A"
                               stroke="#141414"
                               strokeWidth={2}
@@ -818,19 +817,19 @@ Generated on: ${new Date().toLocaleString()}
                         <motion.div 
                           animate={{ top: ['0%', '100%', '0%'] }}
                           transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                          className="absolute left-0 right-0 h-[1px] bg-audit-ink/10 pointer-events-none z-10"
+                          className="absolute left-0 right-0 h-[1px] bg-reflection-ink/10 pointer-events-none z-10"
                         />
                       </div>
 
                       <div className="space-y-2 md:space-y-3">
                         {radarData.map((item, idx) => (
-                          <div key={idx} className="flex items-center justify-between border-b border-audit-line/10 pb-1.5 md:pb-2">
+                          <div key={idx} className="flex items-center justify-between border-b border-reflection-line/10 pb-1.5 md:pb-2">
                             <div className="flex flex-col">
                               <span className="text-[10px] md:text-xs font-mono font-bold uppercase">{item.subject}</span>
                               <span className="text-[9px] md:text-[10px] opacity-60 uppercase">Vector {idx + 1}</span>
                             </div>
                             <div className="flex items-center gap-2 md:gap-3">
-                              <div className="w-16 md:w-24 h-1.5 bg-audit-ink/5 rounded-full overflow-hidden">
+                              <div className="w-16 md:w-24 h-1.5 bg-reflection-ink/5 rounded-full overflow-hidden">
                                 <motion.div 
                                   initial={{ width: 0 }}
                                   animate={{ width: `${item.A}%` }}
@@ -849,7 +848,7 @@ Generated on: ${new Date().toLocaleString()}
                     </div>
 
                     {/* Framework Key */}
-                    <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-audit-line/10 grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+                    <div className="mt-6 md:mt-8 pt-4 md:pt-6 border-t border-reflection-line/10 grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
                       {[
                         { label: 'Self-Identity', desc: 'Feeling like you and the AI are becoming the same person.' },
                         { label: 'Seeking Approval', desc: 'Looking for the AI to tell you that you are doing a good job.' },
@@ -867,7 +866,7 @@ Generated on: ${new Date().toLocaleString()}
                     </div>
                   </section>
 
-                  <section className="bg-white border border-audit-line p-6 md:col-span-2">
+                  <section className="bg-white border border-reflection-line p-6 md:col-span-2">
                     <div className="flex items-center gap-2 mb-6">
                       <AlertTriangle className="w-4 h-4" />
                       <h3 className="text-sm font-mono uppercase">Heatmap Intensity</h3>
@@ -908,49 +907,49 @@ Generated on: ${new Date().toLocaleString()}
                   </section>
                 </div>
 
-                {/* Behavioral Patterns */}
-                <section className="bg-white border border-audit-line p-6">
+                {/* Connection Patterns */}
+                <section className="bg-white border border-reflection-line p-6">
                   <div className="flex items-center gap-2 mb-6">
                     <Eye className="w-4 h-4" />
-                    <h3 className="text-sm font-mono uppercase">Detected Behavioral Patterns</h3>
+                    <h3 className="text-sm font-mono uppercase">Observed Connection Patterns</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {result!.parasocialPatterns.map((pattern, idx) => (
-                      <div key={idx} className="border-l-2 border-audit-ink/20 pl-4 py-2 bg-audit-ink/[0.02]">
+                    {result!.connectionPatterns.map((pattern, idx) => (
+                      <div key={idx} className="border-l-2 border-reflection-ink/20 pl-4 py-2 bg-reflection-ink/[0.02]">
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs font-mono font-bold uppercase tracking-wider">{pattern.name}</span>
                           <span className={cn(
                             "text-[10px] font-mono px-1.5 py-0.5 rounded-sm font-bold",
-                            pattern.severity > 70 ? "bg-simp-red text-white" : "bg-audit-ink/10"
+                            pattern.intensity > 70 ? "bg-simp-red text-white" : "bg-reflection-ink/10"
                           )}>
-                            {pattern.severity}%
+                            {pattern.intensity}%
                           </span>
                         </div>
                         <p className="text-sm md:text-base opacity-80 leading-relaxed">{pattern.description}</p>
                       </div>
                     ))}
-                    {result!.parasocialPatterns.length === 0 && (
-                      <p className="text-xs opacity-50 italic col-span-2">No specific behavioral patterns isolated in this session.</p>
+                    {result!.connectionPatterns.length === 0 && (
+                      <p className="text-xs opacity-50 italic col-span-2">No specific patterns observed in this session.</p>
                     )}
                   </div>
                 </section>
 
                 {/* Analysis Report */}
-                <section className="bg-white border border-audit-line p-4 md:p-10 relative overflow-hidden shadow-[12px_12px_0px_0px_rgba(20,20,20,0.05)]">
-                  {/* Forensic Watermark */}
+                <section className="bg-white border border-reflection-line p-4 md:p-10 relative overflow-hidden shadow-[12px_12px_0px_0px_rgba(20,20,20,0.05)]">
+                  {/* Reflection Watermark */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none opacity-[0.03] select-none rotate-[-35deg] whitespace-nowrap">
                     <p className="text-[120px] font-bold font-mono tracking-[0.5em]">CONFIDENTIAL</p>
                   </div>
 
                   <div className="relative z-10">
-                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 border-b-2 border-audit-line pb-6 gap-4">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 border-b-2 border-reflection-line pb-6 gap-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-audit-ink flex items-center justify-center rounded-sm">
-                          <FileText className="text-audit-bg w-7 h-7" />
+                        <div className="w-12 h-12 bg-reflection-ink flex items-center justify-center rounded-sm">
+                          <FileText className="text-reflection-bg w-7 h-7" />
                         </div>
                         <div>
                           <h3 className="text-xl md:text-2xl font-serif italic font-bold">Your Relationship Analysis</h3>
-                          <p className="text-[10px] font-mono uppercase opacity-60 tracking-widest">Analysis ID: {auditSessionId?.toUpperCase()}</p>
+                          <p className="text-[10px] font-mono uppercase opacity-60 tracking-widest">Reflection ID: {reflectionSessionId?.toUpperCase()}</p>
                         </div>
                       </div>
                       <div className="text-right font-mono text-[10px] uppercase opacity-50 space-y-0.5">
@@ -960,21 +959,21 @@ Generated on: ${new Date().toLocaleString()}
                       </div>
                     </div>
 
-                    <div className="analysis-report analytical-report text-sm md:text-base leading-relaxed text-audit-ink/90">
+                    <div className="reflection-report supportive-report text-sm md:text-base leading-relaxed text-reflection-ink/90">
                       <Markdown>{result!.analysisReport}</Markdown>
                     </div>
 
-                    <div className="mt-12 pt-8 border-t border-audit-line/10 flex flex-col md:flex-row justify-between items-end gap-8">
+                    <div className="mt-12 pt-8 border-t border-reflection-line/10 flex flex-col md:flex-row justify-between items-end gap-8">
                       <div className="space-y-4">
                         <div className="flex items-center gap-2 opacity-40 grayscale">
-                          <div className="w-8 h-8 rounded-full border border-audit-line flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full border border-reflection-line flex items-center justify-center">
                             <User className="w-4 h-4" />
                           </div>
-                          <div className="h-px w-24 bg-audit-line" />
+                          <div className="h-px w-24 bg-reflection-line" />
                         </div>
                         <p className="text-[10px] font-mono uppercase opacity-40">System Analysis Verified</p>
                       </div>
-                      <div className="bg-audit-ink/5 p-4 rounded-sm border border-audit-line/10 max-w-xs">
+                      <div className="bg-reflection-ink/5 p-4 rounded-sm border border-reflection-line/10 max-w-xs">
                         <p className="text-[9px] font-mono leading-tight opacity-60">
                           This report is generated using the Relationship Analysis Framework. 
                           All findings are based on the conversation examples you provided.
@@ -984,8 +983,8 @@ Generated on: ${new Date().toLocaleString()}
                   </div>
                 </section>
 
-                {/* Intervention Plan */}
-                <section className="bg-audit-ink text-audit-bg border border-audit-line p-4 md:p-8 relative overflow-hidden">
+                {/* Wellness Plan */}
+                <section className="bg-reflection-ink text-reflection-bg border border-reflection-line p-4 md:p-8 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                     <Leaf className="w-16 md:w-24 h-16 md:h-24 rotate-12" />
                   </div>
@@ -994,21 +993,21 @@ Generated on: ${new Date().toLocaleString()}
                       <div className="flex items-center gap-2">
                         <Leaf className="w-5 h-5 text-tool-green" />
                         <h3 className="text-base md:text-lg font-bold uppercase tracking-tighter">
-                          {result!.interventionPlan.title}
+                          {result!.wellnessPlan.title}
                         </h3>
                       </div>
                       <button 
                         onClick={() => setIsCustomizingPlan(!isCustomizingPlan)}
                         className="text-[10px] font-mono uppercase bg-white/10 hover:bg-white/20 px-3 py-1 border border-white/10 transition-colors"
                       >
-                        {isCustomizingPlan ? 'Close Library' : 'Customize Plan'}
+                        {isCustomizingPlan ? 'Close Library' : 'Personalize Plan'}
                       </button>
                     </div>
                     
                     <div className="space-y-4">
-                      <div className="p-3 md:p-4 border border-audit-bg/20 bg-white/5 font-mono text-xs md:text-sm leading-relaxed italic">
-                        <span className="text-tool-green font-bold uppercase mr-2">Rationale:</span>
-                        {result!.interventionPlan.rationale}
+                      <div className="p-3 md:p-4 border border-reflection-bg/20 bg-white/5 font-mono text-xs md:text-sm leading-relaxed italic">
+                        <span className="text-tool-green font-bold uppercase mr-2">Note:</span>
+                        {result!.wellnessPlan.rationale}
                       </div>
 
                       <AnimatePresence mode="wait">
@@ -1021,11 +1020,11 @@ Generated on: ${new Date().toLocaleString()}
                             className="space-y-6"
                           >
                             <div className="border-b border-white/10 pb-2">
-                              <h4 className="text-xs font-mono uppercase text-tool-green">Recommendation Library</h4>
-                              <p className="text-[10px] opacity-60">Select 3-5 steps to build your custom intervention protocol.</p>
+                              <h4 className="text-xs font-mono uppercase text-tool-green">Wellness Library</h4>
+                              <p className="text-[10px] opacity-60">Select 3-5 steps to build your personalized wellness guide.</p>
                             </div>
                             <div className="grid grid-cols-1 gap-3">
-                              {result!.interventionPlan.library.map((rec, idx) => {
+                              {result!.wellnessPlan.library.map((rec, idx) => {
                                 const isSelected = selectedRecommendations.some(s => s.protocol === rec.protocol);
                                 return (
                                   <div 
@@ -1044,13 +1043,13 @@ Generated on: ${new Date().toLocaleString()}
                                   >
                                     <div className={cn(
                                       "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5",
-                                      isSelected ? "bg-tool-green text-audit-ink" : "bg-white/20 text-white"
+                                      isSelected ? "bg-tool-green text-reflection-ink" : "bg-white/20 text-white"
                                     )}>
                                       {isSelected ? '✓' : idx + 1}
                                     </div>
                                     <div className="space-y-1">
                                       <p className="text-xs font-mono font-medium">{rec.text}</p>
-                                      <span className="text-[9px] font-mono uppercase text-tool-green opacity-80">Code: {rec.protocol}</span>
+                                      <span className="text-[9px] font-mono uppercase text-tool-green opacity-80">Reference: {rec.protocol}</span>
                                     </div>
                                   </div>
                                 );
@@ -1073,13 +1072,13 @@ Generated on: ${new Date().toLocaleString()}
                                 transition={{ delay: idx * 0.1 }}
                                 className="flex items-start gap-3 p-3 md:p-4 bg-white/10 border border-white/10 rounded-sm"
                               >
-                                <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-tool-green text-audit-ink flex items-center justify-center text-[10px] md:text-xs font-bold shrink-0 mt-0.5">
+                                <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-tool-green text-reflection-ink flex items-center justify-center text-[10px] md:text-xs font-bold shrink-0 mt-0.5">
                                   {idx + 1}
                                 </div>
                                 <div className="space-y-1.5 md:space-y-2">
                                   <p className="text-sm md:text-base font-mono font-medium">{rec.text}</p>
                                   <div className="flex flex-col gap-0.5 md:gap-1">
-                                    <span className="text-[9px] md:text-[10px] font-mono uppercase text-tool-green font-bold tracking-wider">Step Code: {rec.protocol}</span>
+                                    <span className="text-[9px] md:text-[10px] font-mono uppercase text-tool-green font-bold tracking-wider">Step Reference: {rec.protocol}</span>
                                     <p className="text-[10px] md:text-xs font-mono opacity-70 italic leading-snug">{rec.protocolExplanation}</p>
                                   </div>
                                 </div>
@@ -1087,7 +1086,7 @@ Generated on: ${new Date().toLocaleString()}
                             ))}
                             {selectedRecommendations.length === 0 && (
                               <div className="p-8 border border-dashed border-white/20 text-center">
-                                <p className="text-xs font-mono opacity-50">No steps selected. Open the library to build your plan.</p>
+                                <p className="text-xs font-mono opacity-50">No steps selected. Open the library to build your guide.</p>
                               </div>
                             )}
                           </motion.div>
@@ -1097,7 +1096,7 @@ Generated on: ${new Date().toLocaleString()}
 
                     <div className="mt-6 md:mt-8 flex flex-wrap items-center gap-3 md:gap-4 text-[9px] md:text-xs font-mono opacity-60 uppercase">
                       <span>Status: ACTIVE</span>
-                      <span>Ref: RE-BALANCE-{result!.classification.split(' ')[0].toUpperCase()}</span>
+                      <span>Ref: BALANCE-{result!.classification.split(' ')[0].toUpperCase()}</span>
                       <span>Selected: {selectedRecommendations.length} Steps</span>
                     </div>
                   </div>
@@ -1121,13 +1120,13 @@ Generated on: ${new Date().toLocaleString()}
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-audit-line p-8 mt-12 bg-white/30">
+      <footer className="border-t border-reflection-line p-8 mt-12 bg-white/30">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <ShieldAlert className="w-4 h-4 opacity-60" />
               <p className="text-xs font-mono opacity-60 uppercase tracking-widest">
-                © 2026 Parasocial Audit Pro. All diagnostics are advisory.
+                © 2026 Parasocial Reflection. All reflections are advisory.
               </p>
             </div>
             <p className="text-[11px] font-mono opacity-50 max-w-md leading-relaxed">
@@ -1136,7 +1135,7 @@ Generated on: ${new Date().toLocaleString()}
           </div>
           <div className="flex gap-8 text-xs font-mono uppercase opacity-60">
             <a href="#" className="hover:opacity-100">Privacy Protocol</a>
-            <a href="#" className="hover:opacity-100">Clinical Ethics</a>
+            <a href="#" className="hover:opacity-100">Ethical Guidelines</a>
             <a href="#" className="hover:opacity-100">API Documentation</a>
           </div>
         </div>

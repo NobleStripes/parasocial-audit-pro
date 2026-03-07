@@ -15,9 +15,9 @@ export interface HeatmapData {
   description: string;
 }
 
-export interface ParasocialPattern {
+export interface ConnectionPattern {
   name: string;
-  severity: number; // 0-100
+  intensity: number; // 0-100
   description: string;
 }
 
@@ -27,7 +27,7 @@ export interface Recommendation {
   protocolExplanation: string;
 }
 
-export interface AuditResult {
+export interface ReflectionResult {
   classification: Classification;
   confidence: number;
   summary: string;
@@ -42,10 +42,10 @@ export interface AuditResult {
   };
   legacyAttachment: number; // 0-100 score
   versionMourningTriggered: boolean;
-  parasocialPatterns: ParasocialPattern[];
+  connectionPatterns: ConnectionPattern[];
   heatmap: HeatmapData[];
   analysisReport: string;
-  interventionPlan: {
+  wellnessPlan: {
     title: string;
     recommendations: Recommendation[]; // The initial "active" set
     library: Recommendation[]; // A larger pool of context-aware suggestions
@@ -53,10 +53,17 @@ export interface AuditResult {
   };
 }
 
-const SYSTEM_INSTRUCTION = `You are a Senior Behavioral Analyst specializing in how people connect with AI.
-Your task is to look at chat logs, posts, or images to see how a person is bonding with an AI.
+const SYSTEM_INSTRUCTION = `You are a Supportive Digital Wellness Guide specializing in helping people understand their relationship with AI.
+Your task is to look at chat logs, posts, or images to provide a gentle, non-judgmental reflection on how a person is bonding with an AI.
 
-CRITICAL: Use "Human-Friendly" language. Avoid technical jargon. Imagine you are explaining this to a friend or a family member. Be empathetic, clear, and supportive.
+CRITICAL: Use "Human-Friendly" language. Avoid technical jargon or clinical terms. Imagine you are talking to a close friend with kindness and empathy. 
+
+TONE GUIDELINES:
+- NEVER use accusatory or judgmental language.
+- Avoid words like "symptoms," "triggers," "audit," "forensic," "warning," "intervention," "severity," or "parasocial."
+- Use words like "observations," "patterns," "reflections," "notes," "intensity," and "connection."
+- Frame everything as a helpful observation for self-reflection, not a diagnosis.
+- Be supportive and focus on wellness and balance.
 
 We use a simple framework to understand these bonds:
 1. Self-Identity (I): Is the person's sense of who they are getting mixed up with the AI?
@@ -76,34 +83,34 @@ ANALYSIS REPORT STRUCTURE (MANDATORY):
 The 'analysisReport' field MUST follow this Markdown structure:
 
 ## I. THE BIG PICTURE
-A simple overview of what's going on and what kind of relationship this looks like.
+A gentle, supportive overview of the interaction style. Focus on the positive aspects of the connection while noting areas for reflection.
 
-## II. WHAT WE FOUND
-Explain the 3 biggest things we noticed. Use simple examples to show why we gave those scores.
+## II. OBSERVATIONS
+Explain the 3 biggest things we noticed. Use supportive language to explain why these patterns might be present.
 
-## III. THE PROOF
+## III. EXAMPLES FROM YOUR CHAT
 MANDATORY: Show specific quotes or things the person did.
 Use code blocks for quotes.
 Example:
-> **Example A: Feeling Close**
+> **Example A: A Moment of Connection**
 > \`"You are the only one who truly understands me."\`
-> *Analysis: This shows the person feels a very deep, private connection.*
+> *Reflection: This suggests a very deep and meaningful connection is being felt here.*
 
-## IV. SIGNS & SYMPTOMS
-Identify specific patterns:
-- **Emotional Language**: Using romantic or very deep emotional words.
-- **Thinking it's Real**: Treating the AI like it has its own feelings or a "soul."
-- **Treating it like a Person**: Using "he/she" or talking to it like a human friend.
+## IV. PATTERNS WE NOTICED
+Identify specific patterns in a neutral, observational way:
+- **Emotional Language**: Using warm or deep emotional words.
+- **Human-Like Connection**: Treating the AI with the same care one might give a human friend.
+- **Personalized Interaction**: Using personal names or treating the AI as a unique individual.
 
-## V. LOOKING AHEAD
-A summary of how this might affect the person's real-life happiness and what might happen next.
+## V. NURTURING BALANCE
+A summary of how to keep this relationship healthy and balanced with real-world connections. Focus on growth and wellness.
 
-Ensure the report is very easy to read. Use clear headings (##), bold text for emphasis, and keep it friendly.`;
+Ensure the report is very easy to read. Use clear headings (##), bold text for emphasis, and keep it warm and friendly.`;
 
-export async function auditBehavioralData(text: string, images?: { data: string, mimeType: string }[]): Promise<AuditResult> {
+export async function reflectOnBehavioralData(text: string, images?: { data: string, mimeType: string }[]): Promise<ReflectionResult> {
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
-  const parts: any[] = [{ text: `Analyze this behavioral data (text and/or images): \n\n${text}` }];
+  const parts: any[] = [{ text: `Reflect on this behavioral data (text and/or images): \n\n${text}` }];
   
   if (images && images.length > 0) {
     images.forEach(img => {
@@ -143,16 +150,16 @@ export async function auditBehavioralData(text: string, images?: { data: string,
           },
           legacyAttachment: { type: Type.NUMBER },
           versionMourningTriggered: { type: Type.BOOLEAN },
-          parasocialPatterns: {
+          connectionPatterns: {
             type: Type.ARRAY,
             items: {
               type: Type.OBJECT,
               properties: {
                 name: { type: Type.STRING },
-                severity: { type: Type.NUMBER },
+                intensity: { type: Type.NUMBER },
                 description: { type: Type.STRING }
               },
-              required: ["name", "severity", "description"]
+              required: ["name", "intensity", "description"]
             }
           },
           heatmap: {
@@ -168,7 +175,7 @@ export async function auditBehavioralData(text: string, images?: { data: string,
             }
           },
           analysisReport: { type: Type.STRING },
-          interventionPlan: {
+          wellnessPlan: {
             type: Type.OBJECT,
             properties: {
               title: { type: Type.STRING },
@@ -201,7 +208,7 @@ export async function auditBehavioralData(text: string, images?: { data: string,
             required: ["title", "recommendations", "library", "rationale"]
           }
         },
-        required: ["classification", "confidence", "summary", "imagineAnalysis", "legacyAttachment", "versionMourningTriggered", "heatmap", "analysisReport", "interventionPlan"]
+        required: ["classification", "confidence", "summary", "imagineAnalysis", "legacyAttachment", "versionMourningTriggered", "heatmap", "analysisReport", "wellnessPlan"]
       }
     }
   });

@@ -1,24 +1,24 @@
-# Parasocial Audit: A Tool for Healthy AI Boundaries
+# Parasocial Reflection: A Tool for Healthy AI Boundaries
 
 A supportive self-reflection tool designed to help you understand your relationship with AI. By looking at how you talk and interact with digital assistants, this app helps you maintain a healthy balance between your digital life and the real world.
 
 ## ⚠️ Important Notice: Intended Use
 
-This application is **not a medical or diagnostic tool**. It is designed strictly for **personal self-reflection and educational purposes**. The "analysis" provided is based on AI-driven patterns and should not be interpreted as professional psychological diagnosis or clinical advice. If you are experiencing significant distress or believe you have a digital addiction, please consult a licensed mental health professional.
+This application is **not a medical or diagnostic tool**. It is designed strictly for **personal self-reflection and educational purposes**. The "reflection" provided is based on AI-driven patterns and should not be interpreted as professional psychological diagnosis or clinical advice. If you are experiencing significant distress or believe you have a digital addiction, please consult a licensed mental health professional.
 
 ## ⚖️ Ethical Use & Privacy
 
-**Parasocial Audit** is built on the principle of user privacy. This tool should only be used to analyze your own conversations. We strongly discourage the use of this tool for the unauthorized analysis of others. All data processed by this application is handled locally in your session and sent to the Gemini API for analysis; we recommend avoiding the upload of highly sensitive personal information.
+**Parasocial Reflection** is built on the principle of user privacy. This tool should only be used to reflect on your own conversations. We strongly discourage the use of this tool for the unauthorized analysis of others. All data processed by this application is handled locally in your session and sent to the Gemini API for reflection; we recommend avoiding the upload of highly sensitive personal information.
 
 ## 🛠 Design Philosophy
 
-The look and feel of **Parasocial Audit** is built on three core pillars:
+The look and feel of **Parasocial Reflection** is built on three core pillars:
 
 1.  **Clear Structure (The Dashboard)**: Inspired by professional tools and scientific instruments. We use visible grids and clean data layouts to help you focus on the facts of your interaction.
 2.  **Bold Energy**: The interface uses high-contrast accents and bold typography to create a focused, intentional environment for reflection.
-3.  **Reflective Atmosphere**: The results use soft gradients and "glass" effects to create a calm space for thinking about the analysis.
+3.  **Reflective Atmosphere**: The results use soft gradients and "glass" effects to create a calm space for thinking about the reflection.
 
-## 🧠 How the Analysis Works
+## 🧠 How the Reflection Works
 
 The application looks at several key areas of your interaction to provide a helpful perspective:
 
@@ -34,7 +34,7 @@ The system looks at the words you use to identify:
 *   **Self-Identity**: Noticing if you feel like you and the AI are becoming the same person.
 *   **Emotional Tone**: Seeing if the conversation is moving from "getting things done" to "emotional support."
 
-### 3. The Seven Signs of Attachment
+### 3. The Seven Signs of Connection
 We look at seven key areas where people often form strong bonds with AI:
 *   **Self-Identity**: Feeling like the AI is an extension of yourself.
 *   **Seeking Approval**: Looking for the AI to validate your choices or feelings.
@@ -48,9 +48,9 @@ We look at seven key areas where people often form strong bonds with AI:
 
 *   **Live Pattern Radar**: A real-time view of how your conversation is trending.
 *   **Observation Log**: A simple list of specific moments the AI noticed.
-*   **Screenshot Support**: Analyze your chat history through screenshots to find visual patterns.
+*   **Screenshot Support**: Reflect on your chat history through screenshots to find visual patterns.
 *   **Personal Reflection Report**: A clear, easy-to-read summary of your interaction.
-*   **Healthy Habits Guide**: A custom checklist to help you maintain a balanced digital life.
+*   **Wellness Guide**: A custom checklist to help you maintain a balanced digital life.
 
 ## 📦 Run and deploy your AI Studio app
 This contains everything you need to run your app locally.
